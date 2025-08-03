@@ -10,13 +10,13 @@
 - **Multi-Account Support** - Process hundreds of accounts simultaneously
 - **Local Storage** - Automatic account persistence and tracking
 
-### 🔄 **Advanced Farming Modes**
+### 🔄 **Advanced Development Modes**
 - **Basic Mode** - Standard Porto actions (EXP-0001, EXP-0002, EXP-0003)
 - **Advanced Mode** - Protocol interactions (Uniswap, Compound, Aave)
 - **Developer Mode** - Complex multi-call transactions and professional features
 
 ### ⚙️ **Automation & Optimization**
-- **Circular Rotation** - Continuous 24/7 farming with account cycling
+- **Circular Rotation** - Continuous 24/7 testing with account cycling
 - **Smart Delays** - Configurable intervals (Light: 15-20s, Medium: 30-60s, Hard: 60-180s)
 - **Auto Retry** - Automatic retry mechanism for failed transactions
 - **Gas Optimization** - Dynamic gas pricing for cost efficiency
@@ -92,20 +92,20 @@ npm run preview
 0xabcdef1234567890...
 ```
 
-### 2. **Farming Configuration**
+### 2. **Development Configuration**
 - **Upload Private Keys** - Import your EOA private keys
-- **Select Farming Mode** - Basic/Advanced/Developer
+- **Select Development Mode** - Basic/Advanced/Developer
 - **Configure Delays** - Smart or manual delay settings
 - **Enable Features** - Circular rotation, Telegram notifications
 
-### 3. **Start Farming**
+### 3. **Start Development**
 - **Single Account** - Test individual account creation
-- **Mass Farming** - Process all accounts sequentially
-- **Circular Rotation** - Continuous 24/7 farming
+- **Mass Development** - Process all accounts sequentially
+- **Circular Rotation** - Continuous 24/7 testing
 
 ## 🔧 Configuration
 
-### **Farming Modes**
+### **Development Modes**
 
 #### **Basic Mode** 🟢
 - Standard Porto actions
@@ -131,7 +131,7 @@ npm run preview
 ### **Delay Settings**
 
 #### **Smart Delays**
-- **Light**: 15-20 seconds (fast farming)
+- **Light**: 15-20 seconds (fast testing)
 - **Medium**: 30-60 seconds (balanced)
 - **Hard**: 60-180 seconds (stealth mode)
 
@@ -149,7 +149,7 @@ npm run preview
 4. Receive real-time updates
 
 #### **Notifications**
-- 🔄 Farming start/stop
+- 🔄 Development start/stop
 - ✅ Successful transactions
 - ❌ Error reports
 - 📊 Progress statistics
@@ -164,7 +164,7 @@ npm run preview
 - [x] Professional UI/UX
 
 ### ✅ **Advanced Features**
-- [x] Circular rotation farming
+- [x] Circular rotation testing
 - [x] Telegram notifications
 - [x] Smart delay system
 - [x] Auto-retry mechanism
@@ -177,16 +177,16 @@ npm run preview
 - [x] Error handling
 - [x] Modular architecture
 
-### ✅ **Farming Features**
-- [x] Multiple farming modes
+### ✅ **Development Features**
+- [x] Multiple development modes
 - [x] Protocol interactions
 - [x] Progress monitoring
 - [x] Statistics tracking
 - [x] Export functionality
 
-## 🎯 Farming Strategy
+## 🎯 Development Strategy
 
-### **For Airdrop Farming**
+### **For Smart Account Development**
 
 #### **Basic Strategy**
 1. **Create Multiple Accounts** - Use different private keys
@@ -195,7 +195,7 @@ npm run preview
 4. **Track Progress** - Monitor all activities
 
 #### **Advanced Strategy**
-1. **Circular Rotation** - 24/7 continuous farming
+1. **Circular Rotation** - 24/7 continuous testing
 2. **Protocol Interactions** - Engage with DeFi protocols
 3. **Smart Delays** - Natural activity patterns
 4. **Telegram Monitoring** - Real-time progress tracking
@@ -214,11 +214,11 @@ npm run preview
 - **Monitor gas costs** and optimize
 - **Track transaction history** for analysis
 
-#### **Farming Optimization**
+#### **Development Optimization**
 - **Start with Basic mode** for testing
 - **Graduate to Advanced** for efficiency
 - **Use Developer mode** for maximum impact
-- **Enable circular rotation** for 24/7 activity
+- **Enable circular rotation** for 24/7 testing
 
 #### **Risk Management**
 - **Test on testnets** first
@@ -307,7 +307,7 @@ npm run preview
 ### **Speed**
 - **Account Creation**: ~30 seconds per account
 - **Transaction Processing**: ~15 seconds per transaction
-- **Circular Rotation**: Continuous with configurable delays
+- **Circular Rotation**: Continuous testing with configurable delays
 
 ### **Scalability**
 - **Multi-Account Support**: Unlimited accounts
@@ -370,12 +370,12 @@ npm run dev
 ### **Medium Term (Q2 2024)**
 - [ ] DeFi protocol integrations
 - [ ] Social features and leaderboards
-- [ ] Advanced farming strategies
+- [ ] Advanced development strategies
 - [ ] Community governance
 
 ### **Long Term (Q3-Q4 2024)**
 - [ ] AI-powered optimization
-- [ ] Cross-chain farming
+- [ ] Cross-chain development
 - [ ] DAO integration
 - [ ] Enterprise features
 
@@ -404,18 +404,18 @@ npm run dev
 
 ### **Community**
 - **Porto Developers** - For feedback and testing
-- **Airdrop Farmers** - For real-world usage data
+- **Smart Account Developers** - For real-world usage data
 - **Open Source Contributors** - For improvements and bug fixes
 
 ---
 
-## 🚀 **Ready to Farm?**
+## 🚀 **Ready to Develop?**
 
-**Start your Porto farming journey today!**
+**Start your Porto development journey today!**
 
 1. **Clone the repository**
 2. **Upload your private keys**
-3. **Configure farming settings**
+3. **Configure development settings**
 4. **Start circular rotation**
 5. **Monitor via Telegram**
 
@@ -427,4 +427,4 @@ npm run dev
 
 *"The best time to plant a tree was 20 years ago. The second best time is now." - Chinese Proverb*
 
-*"The best time to farm Porto was yesterday. The second best time is now." - Porto Farmers*
+*"The best time to develop Porto was yesterday. The second best time is now." - Porto Developers*
