@@ -1,6 +1,5 @@
 # 🚀 Porto Smart Account Builder
 
-> **By affliction money** - Professional-grade tool for creating, testing, and farming Porto smart accounts with comprehensive automation features.
 
 **Join our community**: [@afflictionmoney](https://t.me/afflictionmoney) 🚀
 
