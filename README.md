@@ -11,6 +11,7 @@
 - **Local Storage** - Automatic account persistence and tracking
 - **Random Interactions** - EOA can only interact with their own Porto accounts
 - **Account Linking** - Maintains EOA ↔ Porto relationship for secure interactions
+- **8 Random Action Types** - EXP-0001, EXP-0002, EXP-0003, Batch Execution, Protocol Interaction, Liquidity Provision, Swap Operations, Yield Farming
 
 ### 🔄 **Advanced Development Modes**
 - **Basic Mode** - Standard Porto actions (EXP-0001, EXP-0002, EXP-0003)
@@ -108,6 +109,12 @@ npm run preview
 - **Circular Rotation** - Continuous 24/7 testing
 - **Random Interactions** - EOA interacts only with their own Porto accounts
 
+### 4. **Random Interactions System**
+- **8 Action Types** - Diverse interaction patterns
+- **Secure Linking** - EOA ↔ Porto relationship maintained
+- **Gas Optimization** - Automatic balance checking
+- **History Tracking** - Complete interaction logs
+
 ## 🔧 Configuration
 
 ### **Development Modes**
@@ -182,12 +189,79 @@ npm run preview
 - [x] Error handling
 - [x] Modular architecture
 
+### ✅ **Random Interaction Features**
+- [x] 8 diverse action types
+- [x] Secure EOA ↔ Porto linking
+- [x] Automatic gas optimization
+- [x] Complete interaction history
+- [x] Real-time statistics tracking
+
 ### ✅ **Development Features**
 - [x] Multiple development modes
 - [x] Protocol interactions
 - [x] Progress monitoring
 - [x] Statistics tracking
 - [x] Export functionality
+
+## 🎲 Random Interactions
+
+### **Available Action Types**
+
+#### **1. EXP-0001_SMART_ACCOUNT_CREATION**
+- **Description**: Smart account creation and key authorization
+- **Action**: Basic Porto account setup
+- **Gas**: ~150,000 units
+
+#### **2. EXP-0002_KEY_AUTHORIZATION**
+- **Description**: Permission delegation and nonce setup
+- **Action**: Key and session management
+- **Gas**: ~180,000 units
+
+#### **3. EXP-0003_ORCHESTRATOR_INTEGRATION**
+- **Description**: Orchestrator integration and intent flow
+- **Action**: Connect to orchestration system
+- **Gas**: ~120,000 units
+
+#### **4. BATCH_EXECUTION**
+- **Description**: Batch operations with signature validation
+- **Action**: Group transactions
+- **Gas**: ~90,000 units
+
+#### **5. PROTOCOL_INTERACTION**
+- **Description**: DeFi protocol interactions
+- **Action**: Work with Uniswap, Compound, Aave
+- **Gas**: ~100,000 units
+
+#### **6. LIQUIDITY_PROVISION** ⭐
+- **Description**: Provide liquidity to pools
+- **Action**: Add liquidity to DEX
+- **Gas**: ~120,000 units
+
+#### **7. SWAP_OPERATION**
+- **Description**: Token swap operations
+- **Action**: Swap between tokens
+- **Gas**: ~80,000 units
+
+#### **8. YIELD_FARMING**
+- **Description**: Yield farming activities
+- **Action**: Participate in yield farming protocols
+- **Gas**: ~110,000 units
+
+### **How Random Interactions Work**
+
+1. **Random Selection** - System randomly chooses one of 8 action types
+2. **EOA ↔ Porto Link** - Each EOA interacts only with their own Porto account
+3. **Balance Check** - Automatic gas balance verification
+4. **Execution** - Create and send transaction with appropriate data
+5. **Logging** - Record all actions in interaction history
+
+### **Interaction Statistics**
+
+Each account tracks:
+- **totalInteractions** - Total number of interactions
+- **lastInteraction** - Timestamp of last interaction
+- **interactions[]** - Array of all performed actions
+- **Gas usage** - Detailed gas consumption per action
 
 ## 🎯 Development Strategy
 
