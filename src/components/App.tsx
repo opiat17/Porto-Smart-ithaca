@@ -987,6 +987,34 @@ function Content() {
             }}>
               By affliction money
             </div>
+            <a 
+              href="https://t.me/afflictionmoney" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                margin: '10px 0 0 0',
+                padding: '8px 16px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '20px',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              🚀 Join @afflictionmoney
+            </a>
           </div>
         </div>
 

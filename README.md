@@ -2,6 +2,8 @@
 
 > **By affliction money** - Professional-grade tool for creating, testing, and farming Porto smart accounts with comprehensive automation features.
 
+**Join our community**: [@afflictionmoney](https://t.me/afflictionmoney) 🚀
+
 ## ✨ Key Features
 
 ### 🎯 **Smart Account Management**
@@ -430,7 +432,7 @@ npm run dev
 
 ### **Getting Help**
 - **GitHub Issues**: [Create an issue](https://github.com/opiat17/porto-farmer-ui/issues)
-- **Telegram Group**: [Join Porto Farmers](https://t.me/portofarmers)
+- **Telegram Group**: [@afflictionmoney](https://t.me/afflictionmoney) 🚀
 - **Discord**: [Ithaca Community](https://discord.gg/ithaca)
 
 ### **Resources**
