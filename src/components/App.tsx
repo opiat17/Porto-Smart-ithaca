@@ -63,9 +63,16 @@ async function createPortoAccount(privateKey: string) {
       blockNumber: receipt.blockNumber,
       gasUsed: receipt.gasUsed.toString(),
       balance: ethers.utils.formatEther(balance),
-      actions: ['basic_transfer']
+      actions: ['basic_transfer'],
+      totalInteractions: 0,
+      interactions: []
     });
     localStorage.setItem('portoAccounts', JSON.stringify(savedAccounts));
+    
+    // Save EOA private key for future interactions (encrypted)
+    const eoaPrivateKeys = JSON.parse(localStorage.getItem('eoaPrivateKeys') || '[]');
+    eoaPrivateKeys.push(privateKey);
+    localStorage.setItem('eoaPrivateKeys', JSON.stringify(eoaPrivateKeys));
     
     return { 
       portoAddress, 
@@ -78,6 +85,114 @@ async function createPortoAccount(privateKey: string) {
   } catch (error) {
     console.error('Error creating Porto account:', error);
     throw error;
+  }
+}
+
+// Random interactions with existing Porto accounts
+async function performRandomPortoInteractions() {
+  try {
+    const savedAccounts = JSON.parse(localStorage.getItem('portoAccounts') || '[]');
+    if (savedAccounts.length === 0) {
+      console.log('❌ No Porto accounts found for interactions');
+      return;
+    }
+
+    // Get all EOA private keys that created Porto accounts
+    const eoaPrivateKeys = JSON.parse(localStorage.getItem('eoaPrivateKeys') || '[]');
+    if (eoaPrivateKeys.length === 0) {
+      console.log('❌ No EOA private keys found for interactions');
+      return;
+    }
+
+    const provider = new ethers.providers.JsonRpcProvider('https://sepolia.base.org');
+    const actions = [];
+    const interactions = [];
+
+    // Randomly select an EOA and its corresponding Porto account
+    const randomIndex = Math.floor(Math.random() * Math.min(savedAccounts.length, eoaPrivateKeys.length));
+    const selectedEOA = eoaPrivateKeys[randomIndex];
+    const selectedPorto = savedAccounts[randomIndex];
+
+    if (!selectedEOA || !selectedPorto) {
+      console.log('❌ Invalid account selection for interaction');
+      return;
+    }
+
+    const wallet = new ethers.Wallet(selectedEOA, provider);
+    const balance = await provider.getBalance(wallet.address);
+    const gasPrice = await provider.getGasPrice();
+
+    console.log(`🎲 Random interaction: EOA ${wallet.address} → Porto ${selectedPorto.address}`);
+
+    // Random action selection
+    const actionTypes = [
+      'EXP-0001_SMART_ACCOUNT_CREATION',
+      'EXP-0002_KEY_AUTHORIZATION', 
+      'EXP-0003_ORCHESTRATOR_INTEGRATION',
+      'BATCH_EXECUTION',
+      'PROTOCOL_INTERACTION',
+      'LIQUIDITY_PROVISION',
+      'SWAP_OPERATION',
+      'YIELD_FARMING'
+    ];
+
+    const randomAction = actionTypes[Math.floor(Math.random() * actionTypes.length)];
+
+    if (balance.gt(gasPrice.mul(80000))) {
+      try {
+        const interactionData = ethers.utils.defaultAbiCoder.encode(
+          ['address', 'uint256', 'string', 'bytes32'],
+          [selectedPorto.address, Date.now(), randomAction, ethers.utils.keccak256(ethers.utils.toUtf8Bytes('random_interaction'))]
+        );
+        
+        const tx = await wallet.sendTransaction({
+          to: selectedPorto.address,
+          data: "0x" + interactionData.slice(2),
+          gasLimit: 120000
+        });
+        
+        await tx.wait();
+        actions.push(randomAction);
+        interactions.push({
+          type: randomAction,
+          hash: tx.hash,
+          description: `Random ${randomAction} interaction`,
+          eoaAddress: wallet.address,
+          portoAddress: selectedPorto.address,
+          timestamp: Date.now()
+        });
+        
+        console.log(`✅ Random interaction completed: ${randomAction}`, tx.hash);
+        console.log(`🔗 Explorer: https://sepolia.basescan.org/tx/${tx.hash}`);
+        
+        // Update the account with new interaction
+        const updatedAccounts = savedAccounts.map((account: any, index: number) => {
+          if (index === randomIndex) {
+            return {
+              ...account,
+              lastInteraction: Date.now(),
+              totalInteractions: (account.totalInteractions || 0) + 1,
+              interactions: [...(account.interactions || []), {
+                type: randomAction,
+                hash: tx.hash,
+                timestamp: Date.now()
+              }]
+            };
+          }
+          return account;
+        });
+        
+        localStorage.setItem('portoAccounts', JSON.stringify(updatedAccounts));
+        
+      } catch (error: any) {
+        console.log(`⚠️ Random interaction failed: ${error.message}`);
+      }
+    }
+
+    return { actions, interactions };
+  } catch (error) {
+    console.error('Error performing random Porto interactions:', error);
+    return { actions: [], interactions: [] };
   }
 }
 
@@ -242,6 +357,7 @@ function Content() {
   const [telegramEnabled, setTelegramEnabled] = useState(false);
   const [telegramBotToken, setTelegramBotToken] = useState('');
   const [telegramChatId, setTelegramChatId] = useState('');
+  const [randomInteractions, setRandomInteractions] = useState<any[]>([]);
 
   useEffect(() => {
     // Load saved Porto accounts
@@ -485,6 +601,44 @@ function Content() {
 
   const clearLogs = () => {
     setLogs([]);
+  };
+
+  const handleRandomInteractions = async () => {
+    const savedAccounts = JSON.parse(localStorage.getItem('portoAccounts') || '[]');
+    if (savedAccounts.length === 0) {
+      addLog('❌ No Porto accounts found for random interactions', 'error');
+      setFarmingResult('❌ No Porto accounts found. Create some accounts first.');
+      return;
+    }
+
+    setFarmingLoading(true);
+    setFarmingResult('🎲 Performing random interactions...');
+    addLog('🎲 Starting random Porto interactions', 'info');
+    
+    try {
+      const result = await performRandomPortoInteractions();
+      if (result) {
+        const { actions, interactions } = result;
+        setRandomInteractions(interactions);
+        
+        if (actions.length > 0) {
+          addLog(`✅ Random interaction completed: ${actions.join(', ')}`, 'success');
+          setFarmingResult(`✅ Random interaction completed!\nAction: ${actions.join(', ')}\nTotal interactions: ${savedAccounts.length}`);
+          
+          // Reload accounts to show updated interaction counts
+          const updatedAccounts = JSON.parse(localStorage.getItem('portoAccounts') || '[]');
+          setPortoAccounts(updatedAccounts);
+        } else {
+          addLog('⚠️ No random interactions performed (insufficient balance)', 'warning');
+          setFarmingResult('⚠️ No interactions performed - insufficient balance');
+        }
+      }
+    } catch (error: any) {
+      addLog(`❌ Random interaction failed: ${error.message}`, 'error');
+      setFarmingResult(`❌ Random interaction failed: ${error.message}`);
+    } finally {
+      setFarmingLoading(false);
+    }
   };
 
   const exportPortoAccounts = () => {
@@ -823,14 +977,16 @@ function Content() {
             }}>
               ✨ Porto Smart Account Builder ✨
             </h1>
-            <p style={{ 
-              margin: '10px 0 0 0', 
+            <div style={{
+              margin: '10px 0 0 0',
               fontSize: '1.2rem',
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontWeight: '300'
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '3px',
+              animation: 'burningText 2s ease-in-out infinite alternate'
             }}>
-              Advanced Smart Account Development & Testing Platform
-            </p>
+              By affliction money
+            </div>
           </div>
         </div>
 
@@ -915,9 +1071,50 @@ function Content() {
                   textAlign: 'center',
                   background: 'rgba(255, 255, 255, 0.02)',
                   transition: 'all 0.3s ease',
-                  position: 'relative'
-                }}>
+                  position: 'relative',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.border = '2px dashed rgba(255, 255, 255, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.border = '2px dashed rgba(255, 255, 255, 0.3)';
+                }}
+                onClick={() => {
+                  const fileInput = document.getElementById('file-upload-input') as HTMLInputElement;
+                  if (fileInput) {
+                    fileInput.click();
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const files = e.dataTransfer.files;
+                  if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                      // Create a mock event for the file upload handler
+                      const mockEvent = {
+                        target: { files: [file] }
+                      } as any;
+                      handleFileUpload(mockEvent);
+                    }
+                  }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.border = '2px dashed rgba(255, 255, 255, 0.7)';
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.border = '2px dashed rgba(255, 255, 255, 0.3)';
+                }}
+                >
                   <input
+                    id="file-upload-input"
                     type="file"
                     accept=".txt"
                     onChange={handleFileUpload}
@@ -928,19 +1125,23 @@ function Content() {
                       width: '100%',
                       height: '100%',
                       opacity: 0,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      zIndex: 1
                     }}
                   />
-                  <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'relative', zIndex: 0 }}>
                     <div style={{ fontSize: '4rem', marginBottom: '15px', filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.3))' }}>📄</div>
-                    <p style={{ margin: '0 0 10px 0', color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem' }}>
+                    <p style={{ margin: '0 0 10px 0', color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem', fontWeight: 'bold' }}>
                       Choose .txt file with private keys
                     </p>
                     <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem' }}>
-                      One key per line, starting with 0x
+                      One key per line
                     </p>
                     <p style={{ margin: '5px 0 0 0', color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem' }}>
                       💡 macOS: Save file as UTF-8 encoding for best compatibility
+                    </p>
+                    <p style={{ margin: '3px 0 0 0', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.7rem' }}>
+                      🖱️ Click or drag & drop to upload
                     </p>
                   </div>
                 </div>
@@ -1047,6 +1248,25 @@ function Content() {
                     }}
                   >
                     🔄 Circular Rotation
+                  </button>
+                  
+                  <button 
+                    onClick={handleRandomInteractions}
+                    disabled={farmingLoading || portoAccounts.length === 0}
+                    style={{
+                      padding: '15px 20px',
+                      fontSize: '1rem',
+                      background: (farmingLoading || portoAccounts.length === 0) ? 'rgba(255, 255, 255, 0.1)' : 'linear-gradient(135deg, #f56565 0%, #e53e3e 100%)',
+                      color: (farmingLoading || portoAccounts.length === 0) ? 'rgba(255, 255, 255, 0.5)' : 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      cursor: (farmingLoading || portoAccounts.length === 0) ? 'not-allowed' : 'pointer',
+                      fontWeight: 'bold',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    🎲 Random Interactions
                   </button>
                 </div>
                 
@@ -1533,6 +1753,71 @@ function Content() {
                 </div>
               )}
 
+              {/* Random Interactions */}
+              {randomInteractions.length > 0 && (
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(20px)',
+                  padding: '20px', 
+                  borderRadius: '20px',
+                  marginBottom: '20px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 15px 35px rgba(0,0,0,0.2)'
+                }}>
+                  <h3 style={{ margin: '0 0 15px 0', color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.1rem' }}>
+                    🎲 Random Interactions
+                  </h3>
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    {randomInteractions.map((interaction, index) => (
+                      <div key={index} style={{ 
+                        padding: '12px', 
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '10px', 
+                        marginBottom: '10px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.9)' }}>
+                            {interaction.type}
+                          </span>
+                          <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                            {interaction.description}
+                          </span>
+                        </div>
+                        <p style={{ margin: '0 0 5px 0', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.8)', fontFamily: 'monospace' }}>
+                          EOA: {interaction.eoaAddress}
+                        </p>
+                        <p style={{ margin: '0 0 5px 0', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.8)', fontFamily: 'monospace' }}>
+                          Porto: {interaction.portoAddress}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace', color: 'rgba(255, 255, 255, 0.8)', wordBreak: 'break-all' }}>
+                          {interaction.hash}
+                        </p>
+                        <a 
+                          href={`https://sepolia.basescan.org/tx/${interaction.hash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ 
+                            fontSize: '0.8rem', 
+                            color: '#3182ce', 
+                            textDecoration: 'none',
+                            display: 'inline-block',
+                            marginTop: '5px',
+                            padding: '3px 8px',
+                            background: 'rgba(49, 130, 206, 0.2)',
+                            borderRadius: '5px',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          🔗 View on BaseScan
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* EXP Transactions */}
               {expTransactions.length > 0 && (
                 <div style={{ 
@@ -1769,6 +2054,12 @@ function Content() {
                       <div>
                         <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Created:</span> {new Date(account.timestamp).toLocaleDateString()}
                       </div>
+                      <div>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Interactions:</span> {account.totalInteractions || 0}
+                      </div>
+                      <div>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Last:</span> {account.lastInteraction ? new Date(account.lastInteraction).toLocaleTimeString() : 'Never'}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1787,6 +2078,21 @@ function Content() {
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
+        }
+        
+        @keyframes burningText {
+          0% { 
+            color: rgba(255, 255, 255, 0.8);
+            textShadow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 10px rgba(255, 255, 255, 0.3);
+          }
+          50% { 
+            color: rgba(255, 255, 255, 1);
+            textShadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+          }
+          100% { 
+            color: rgba(255, 255, 255, 0.9);
+            textShadow: 0 0 15px rgba(255, 255, 255, 0.7), 0 0 25px rgba(255, 255, 255, 0.5), 0 0 35px rgba(255, 255, 255, 0.3);
+          }
         }
       `}</style>
     </div>

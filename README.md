@@ -1,6 +1,6 @@
 # 🚀 Porto Smart Account Builder
 
-> Advanced Smart Account Development & Testing Platform for [Porto SDK by Ithaca](https://porto.sh). Professional-grade tool for creating, testing, and farming Porto smart accounts with comprehensive automation features.
+> **By affliction money** - Professional-grade tool for creating, testing, and farming Porto smart accounts with comprehensive automation features.
 
 ## ✨ Key Features
 
@@ -9,6 +9,8 @@
 - **EOA Integration** - Private key-based wallet management
 - **Multi-Account Support** - Process hundreds of accounts simultaneously
 - **Local Storage** - Automatic account persistence and tracking
+- **Random Interactions** - EOA can only interact with their own Porto accounts
+- **Account Linking** - Maintains EOA ↔ Porto relationship for secure interactions
 
 ### 🔄 **Advanced Development Modes**
 - **Basic Mode** - Standard Porto actions (EXP-0001, EXP-0002, EXP-0003)
@@ -92,6 +94,8 @@ npm run preview
 0xabcdef1234567890...
 ```
 
+**💡 macOS Users**: Save your text file with UTF-8 encoding for best compatibility. The app now supports multiple encodings and will automatically detect the correct format.
+
 ### 2. **Development Configuration**
 - **Upload Private Keys** - Import your EOA private keys
 - **Select Development Mode** - Basic/Advanced/Developer
@@ -102,6 +106,7 @@ npm run preview
 - **Single Account** - Test individual account creation
 - **Mass Development** - Process all accounts sequentially
 - **Circular Rotation** - Continuous 24/7 testing
+- **Random Interactions** - EOA interacts only with their own Porto accounts
 
 ## 🔧 Configuration
 
