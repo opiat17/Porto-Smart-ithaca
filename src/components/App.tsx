@@ -293,20 +293,66 @@ function Content() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        const keys = content
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0 && line.startsWith('0x'))
-          .slice(0, 100); // Limit to 100 keys for safety
-        
-        setPrivateKeys(keys);
-        setCurrentKeyIndex(0);
-        addLog(`📁 Loaded ${keys.length} private keys`, 'success');
+      // Try different encodings for macOS compatibility
+      const tryReadFile = (encoding: string) => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const content = e.target?.result as string;
+            resolve(content);
+          };
+          reader.onerror = () => reject(new Error(`Failed to read file with ${encoding} encoding`));
+          reader.readAsText(file, encoding);
+        });
       };
-      reader.readAsText(file);
+
+      // Try UTF-8 first, then fallback to other encodings
+      Promise.resolve()
+        .then(() => tryReadFile('utf-8'))
+        .catch(() => tryReadFile('windows-1252'))
+        .catch(() => tryReadFile('iso-8859-1'))
+        .then((content) => {
+          // Clean up content and extract private keys
+          const keys = content
+            .split(/\r?\n/) // Handle both \n and \r\n line endings
+            .map(line => line.trim())
+            .filter(line => {
+              // More flexible private key detection
+              return line.length > 0 && (
+                line.startsWith('0x') || 
+                /^[0-9a-fA-F]{64}$/.test(line) || // 64 hex chars without 0x
+                /^[0-9a-fA-F]{66}$/.test(line)    // 66 hex chars (with 0x)
+              );
+            })
+            .map(key => {
+              // Ensure proper format
+              if (key.startsWith('0x')) {
+                return key.toLowerCase();
+              } else {
+                return '0x' + key.toLowerCase();
+              }
+            })
+            .filter((key, index, arr) => {
+              // Remove duplicates
+              return arr.indexOf(key) === index;
+            })
+            .slice(0, 100); // Limit to 100 keys for safety
+          
+          if (keys.length === 0) {
+            addLog('⚠️ No valid private keys found in file. Make sure keys start with 0x or are 64 hex characters.', 'warning');
+            setFarmingResult('❌ No valid private keys found in file');
+            return;
+          }
+          
+          setPrivateKeys(keys);
+          setCurrentKeyIndex(0);
+          addLog(`📁 Loaded ${keys.length} private keys from ${file.name}`, 'success');
+          addLog(`📋 File size: ${(file.size / 1024).toFixed(2)} KB`, 'info');
+        })
+        .catch((error: any) => {
+          addLog(`❌ Error reading file: ${error.message}`, 'error');
+          setFarmingResult('❌ Failed to read file. Try saving it as UTF-8 encoding.');
+        });
     }
   };
 
@@ -365,7 +411,7 @@ function Content() {
       const saved = JSON.parse(localStorage.getItem('portoAccounts') || '[]');
       setPortoAccounts(saved);
       
-    } catch (error) {
+    } catch (error: any) {
       addLog(`❌ Ошибка: ${error}`, 'error');
       addDetailedLog('ERROR_OCCURRED', {
         accountIndex: currentKeyIndex + 1,
@@ -415,7 +461,7 @@ function Content() {
         addLog(`⏱️ Waiting ${delay} seconds before next transaction...`, 'info');
         await new Promise(resolve => setTimeout(resolve, delay * 1000));
         
-      } catch (error) {
+      } catch (error: any) {
         errorCount++;
         addLog(`❌ Ошибка кошелька ${i + 1}: ${error}`);
       }
@@ -466,7 +512,7 @@ function Content() {
 
     // Create CSV content with proper formatting
     const csvHeaders = 'Account #,Porto Address,EOA Address,EOA Private Key,Created At,Balance,Block Number,Transactions,Note\n';
-    const csvContent = exportData.map(account => {
+    const csvContent = exportData.map((account: any) => {
       // Escape quotes and format data properly
       const portoAddress = `"${account.portoAddress}"`;
       const eoaAddress = `"${account.eoaAddress}"`;
@@ -892,6 +938,9 @@ function Content() {
                     </p>
                     <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem' }}>
                       One key per line, starting with 0x
+                    </p>
+                    <p style={{ margin: '5px 0 0 0', color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem' }}>
+                      💡 macOS: Save file as UTF-8 encoding for best compatibility
                     </p>
                   </div>
                 </div>
@@ -1729,7 +1778,7 @@ function Content() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
